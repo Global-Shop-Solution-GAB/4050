@@ -1,0 +1,198 @@
+Program.Sub.ScreenSU.Start
+gui.Form1..create
+gui.Form1..caption("Sales Order Information")
+gui.Form1..size(5970,6690)
+gui.Form1..minx(0)
+gui.Form1..miny(0)
+gui.Form1..position(0,0)
+gui.Form1..event(unload,form1_unload)
+gui.Form1..alwaysontop(False)
+gui.Form1..fontname("Arial")
+gui.Form1..fontsize(8)
+gui.Form1..forecolor(0)
+gui.Form1..fontstyle(,,,,)
+gui.Form1..BackColor(-2147483633)
+gui.Form1..controlbox(True)
+gui.Form1..maxbutton(True)
+gui.Form1..minbutton(True)
+gui.Form1..mousepointer(0)
+gui.Form1..moveable(True)
+gui.Form1..sizeable(True)
+gui.Form1..ShowInTaskBar(True)
+gui.Form1..titlebar(True)
+gui.Form1.lblPart.create(label,"Part",True,1170,255,1,250,335,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblPart.defaultvalue("")
+gui.Form1.lblPart.controlgroup(0)
+gui.Form1.txtPart.create(textbox,"",True,2130,300,0,250,600,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtPart.defaultvalue("")
+gui.Form1.txtPart.controlgroup(0)
+gui.Form1.lblRev.create(label,"Rev",True,480,255,1,2665,335,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblRev.defaultvalue("")
+gui.Form1.lblRev.controlgroup(0)
+gui.Form1.txtRev.create(textbox,"",True,465,300,0,2665,600,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtRev.defaultvalue("")
+gui.Form1.txtRev.controlgroup(0)
+gui.Form1.lblDesc.create(label,"Description",True,1935,255,1,250,1090,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblDesc.defaultvalue("")
+gui.Form1.lblDesc.controlgroup(0)
+gui.Form1.txtDesc.create(textbox,"",True,3150,300,0,250,1370,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtDesc.defaultvalue("")
+gui.Form1.txtDesc.controlgroup(0)
+gui.Form1.lblSOText.create(label,"Sales Order Information",True,1935,255,1,250,1940,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblSOText.defaultvalue("")
+gui.Form1.lblSOText.controlgroup(0)
+gui.Form1.mltxtSOText.create(textboxm)
+gui.Form1.mltxtSOText.text("")
+gui.Form1.mltxtSOText.visible(True)
+gui.Form1.mltxtSOText.size(5175,3075)
+gui.Form1.mltxtSOText.zorder(0)
+gui.Form1.mltxtSOText.position(250,2235)
+gui.Form1.mltxtSOText.enabled(True)
+gui.Form1.mltxtSOText.alignment(0)
+gui.Form1.mltxtSOText.fontname("Arial")
+gui.Form1.mltxtSOText.fontsize(8)
+gui.Form1.mltxtSOText.BackColor(-2147483643)
+gui.Form1.mltxtSOText.defaultvalue("")
+gui.Form1.mltxtSOText.controlgroup(0)
+gui.Form1.cmdSave.create(button)
+gui.Form1.cmdSave.caption("Save")
+gui.Form1.cmdSave.visible(True)
+gui.Form1.cmdSave.size(855,375)
+gui.Form1.cmdSave.zorder(0)
+gui.Form1.cmdSave.position(250,5515)
+gui.Form1.cmdSave.enabled(True)
+gui.Form1.cmdSave.fontname("Arial")
+gui.Form1.cmdSave.fontsize(8)
+gui.Form1.cmdSave.event(click,cmdsave_click)
+gui.Form1.cmdSave.defaultvalue("")
+gui.Form1.cmdSave.controlgroup(0)
+gui.Form1.lblLoc.create(label,"Loc",True,510,255,1,3450,335,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblLoc.defaultvalue("")
+gui.Form1.lblLoc.controlgroup(0)
+gui.Form1.txtLoc.create(textbox,"",True,540,300,0,3450,600,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtLoc.defaultvalue("")
+gui.Form1.txtLoc.controlgroup(0)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Populate Hook of Inventory Master 10120
+'Script 1 Button Hook on Inventory Master 10210
+'Set the Text for the script 1 button to read SO Text
+
+F.Intrinsic.Control.SelectCase(V.Caller.Hook)
+
+	'Set Script 1 button text
+	F.Intrinsic.Control.Case(10120)
+		V.Passed.000068.Set("SO Text")
+
+	F.Intrinsic.Control.Case(10210)
+		'Ensure a part has been selected and load the custom screen with the part, rev, Loc, and description.
+		'Then lock the controls so the user can not edit, and show the screen
+		F.Intrinsic.Control.If(V.Passed.000007,!=,"")
+			Gui.Form1.txtPart.Text(V.Passed.000007.Trim)
+			Gui.Form1.txtRev.Text(V.Passed.000008.Trim)
+			Gui.Form1.txtDesc.Text(V.Passed.000012.Trim)
+			Gui.Form1.txtLoc.Text(V.Passed.000009.Trim)
+			Gui.Form1.txtPart.Enabled(False)
+			Gui.Form1.txtRev.Enabled(False)
+			Gui.Form1.txtDesc.Enabled(False)
+			Gui.Form1.txtLoc.Enabled(False)
+			'--------------------Get saved SO Text before the screen shows.---------------------------------------
+			F.Intrinsic.Control.CallSub(Getsotext)
+			Gui.Form1..Show
+		F.Intrinsic.Control.Else
+			'Inform the user to select a part.
+			F.Intrinsic.UI.Msgbox("Please select a part!","Error")
+		F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.Case(10170)
+		F.Intrinsic.Control.If(V.Caller.Switches,=,"D")
+		'---------------------Delete Part from custom table-----------------------------------------------
+			F.Intrinsic.Control.CallSub(Deletepart)
+		F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.EndSelect
+
+Program.Sub.Main.End
+
+program.sub.form1_unload.start
+
+F.ODBC.Connection!conx.Close
+
+F.Intrinsic.Control.End
+
+program.sub.form1_unload.end
+
+program.sub.cmdsave_click.start
+
+V.Local.sSql.Declare(String)
+
+V.Local.sSql.Set("Select * from GCG_4050_Maint where Part = '")
+F.Intrinsic.String.Concat(V.Local.sSql,V.Screen.Form1!txtPart.Text,"' and Rev = '",V.Screen.Form1!txtRev.Text,"' and Loc = '",V.Screen.Form1!txtLoc.Text,"'",V.Local.sSql)
+
+F.ODBC.Connection!conx.OpenLocalRecordsetRW("rst",V.Local.sSql)
+'Save Data to the custom table.
+'If EOF the record will be added.
+'If not EOF then the updated Data will be saved to the table
+F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+	F.ODBC.conx!rst.Set!SO_Text(V.Screen.Form1!mltxtSOText.Text)
+	F.ODBC.conx!rst.Update
+F.Intrinsic.Control.ElseIf(V.Screen.Form1!mltxtSOText.Text,!=,"")
+	F.ODBC.conx!rst.AddNew
+	F.ODBC.conx!rst.Set!Part(V.Screen.Form1!txtPart.Text)
+	F.ODBC.conx!rst.Set!Rev(V.Screen.Form1!txtRev.Text)
+	F.ODBC.conx!rst.Set!Loc(V.Screen.Form1!txtLoc.Text)
+	F.ODBC.conx!rst.Set!SO_Text(V.Screen.Form1!mltxtSOText.Text)
+	F.ODBC.conx!rst.Update
+F.Intrinsic.Control.EndIf
+
+F.ODBC.conx!rst.Close
+F.Intrinsic.Control.CallSub(Form1_unload)
+
+program.sub.cmdsave_click.end
+
+Program.Sub.GetSOText.Start
+V.Local.sSql.Declare(String)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+'Check custom table to see if there is any data currently being stored.
+'If so then fill in the multiline text box
+
+V.Local.sSql.Set("Select SO_Text from GCG_4050_Maint where Part = '")
+F.Intrinsic.String.Concat(V.Local.sSql,V.Screen.Form1!txtPart.Text,"' and Rev = '",V.Screen.Form1!txtRev.Text,"' and Loc ='",V.Screen.Form1!txtLoc.Text,"'",V.Local.sSql)
+
+F.ODBC.Connection!conx.OpenLocalRecordsetRO("rst",V.Local.sSql)
+
+F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+	Gui.Form1.mltxtSOText.Text(V.ODBC.conx!rst.FieldValTrim!SO_Text)
+F.Intrinsic.Control.EndIf
+
+F.ODBC.conx!rst.Close
+
+Program.Sub.GetSOText.End
+
+Program.Sub.DeletePart.Start
+
+V.Local.sSql.Declare(String)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+F.Intrinsic.String.Concat("Delete from GCG_4050_Maint where Part = '",V.Passed.000007.Trim,"' and Rev = '",V.Passed.000008.Trim,"' and Loc = '",V.Passed.000009.Trim,"'",V.Local.sSql)
+
+'When a part is deleted the custom data for that part will also be removed.
+F.ODBC.Connection!conx.Execute(V.Local.sSql)
+
+F.Intrinsic.Control.CallSub(Form1_unload)
+
+Program.Sub.DeletePart.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_4050_Maint$}$SKT$}$1/23/2015
+Program.Sub.Comments.End
+
