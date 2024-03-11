@@ -1,0 +1,152 @@
+Program.Sub.ScreenSU.Start
+gui.Form1..create
+gui.Form1..caption("Order Entry Part Information")
+gui.Form1..size(5970,6690)
+gui.Form1..minx(0)
+gui.Form1..miny(0)
+gui.Form1..position(0,0)
+gui.Form1..event(unload,form1_unload)
+gui.Form1..alwaysontop(False)
+gui.Form1..fontname("Arial")
+gui.Form1..fontsize(8)
+gui.Form1..forecolor(0)
+gui.Form1..fontstyle(,,,,)
+gui.Form1..BackColor(-2147483633)
+gui.Form1..controlbox(True)
+gui.Form1..maxbutton(True)
+gui.Form1..minbutton(True)
+gui.Form1..mousepointer(0)
+gui.Form1..moveable(True)
+gui.Form1..sizeable(True)
+gui.Form1..ShowInTaskBar(True)
+gui.Form1..titlebar(True)
+gui.Form1.lblPart.create(label,"Part",True,1170,255,1,250,335,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblPart.defaultvalue("")
+gui.Form1.lblPart.controlgroup(0)
+gui.Form1.txtPart.create(textbox,"",True,2130,300,0,250,600,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtPart.defaultvalue("")
+gui.Form1.txtPart.controlgroup(0)
+gui.Form1.lblRev.create(label,"Rev",True,480,255,1,2665,335,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblRev.defaultvalue("")
+gui.Form1.lblRev.controlgroup(0)
+gui.Form1.txtRev.create(textbox,"",True,465,300,0,2665,600,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtRev.defaultvalue("")
+gui.Form1.txtRev.controlgroup(0)
+gui.Form1.mltxtSOText.create(textboxm)
+gui.Form1.mltxtSOText.text("")
+gui.Form1.mltxtSOText.visible(True)
+gui.Form1.mltxtSOText.size(5175,3075)
+gui.Form1.mltxtSOText.zorder(0)
+gui.Form1.mltxtSOText.position(250,2235)
+gui.Form1.mltxtSOText.enabled(True)
+gui.Form1.mltxtSOText.alignment(0)
+gui.Form1.mltxtSOText.fontname("Arial")
+gui.Form1.mltxtSOText.fontsize(8)
+gui.Form1.mltxtSOText.BackColor(-2147483643)
+gui.Form1.mltxtSOText.defaultvalue("")
+gui.Form1.mltxtSOText.controlgroup(0)
+gui.Form1.cmdDone.create(button)
+gui.Form1.cmdDone.caption("Done")
+gui.Form1.cmdDone.visible(True)
+gui.Form1.cmdDone.size(855,375)
+gui.Form1.cmdDone.zorder(0)
+gui.Form1.cmdDone.position(250,5515)
+gui.Form1.cmdDone.enabled(True)
+gui.Form1.cmdDone.fontname("Arial")
+gui.Form1.cmdDone.fontsize(8)
+gui.Form1.cmdDone.event(click,cmddone_click)
+gui.Form1.cmdDone.defaultvalue("")
+gui.Form1.cmdDone.controlgroup(0)
+gui.Form1.lblDesc.create(label,"Description",True,1935,255,1,250,1090,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblDesc.defaultvalue("")
+gui.Form1.lblDesc.controlgroup(0)
+gui.Form1.txtDesc.create(textbox,"",True,3210,300,0,200,1400,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtDesc.defaultvalue("")
+gui.Form1.txtDesc.controlgroup(0)
+gui.Form1.lblLoc.create(label,"Loc",True,510,255,1,3450,335,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblLoc.defaultvalue("")
+gui.Form1.lblLoc.controlgroup(0)
+gui.Form1.txtLoc.create(textbox,"",True,540,300,0,3450,600,True,0,Arial,8,-2147483643,1)
+gui.Form1.txtLoc.defaultvalue("")
+gui.Form1.txtLoc.controlgroup(0)
+gui.Form1.lblSoText.create(label,"Additional Part Information",True,1935,255,1,250,1940,True,0,Arial,8,-2147483633,0)
+gui.Form1.lblSoText.defaultvalue("")
+gui.Form1.lblSoText.controlgroup(0)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+V.Local.sSql.Declare(String)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+F.Intrinsic.Control.SelectCase(V.Caller.Hook)
+	'Long form of the Order Entry Screen Save Hook
+	F.Intrinsic.Control.Case(12230)
+		'Check to see if there is custom text for this part
+		F.Intrinsic.String.Concat("Select SO_Text from GCG_4050_Maint where Part = '",V.Passed.000052.Trim,"' and Rev = '",V.Passed.000053.Trim,"' and Loc = '",V.Passed.000054.Trim,"'",V.Local.sSql)
+		F.ODBC.Connection!conx.OpenLocalRecordsetRO("rst",V.Local.sSql)
+		F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+			'Display text here
+			Gui.Form1.txtPart.Text(V.Passed.000052.Trim)
+			Gui.Form1.txtRev.Text(V.Passed.000053.Trim)
+			Gui.Form1.txtLoc.Text(V.Passed.000054.Trim)
+			Gui.Form1.txtDesc.Text(V.Passed.000056.Trim)
+			Gui.Form1.mltxtSOText.Text(V.ODBC.conx!rst.FieldValTrim!SO_Text)
+			'Lock the Controls
+			Gui.Form1.txtPart.Enabled(False)
+			Gui.Form1.txtRev.Enabled(False)
+			Gui.Form1.txtDesc.Enabled(False)
+			Gui.Form1.txtLoc.Enabled(False)
+			'display the information
+			Gui.Form1..Show
+		F.Intrinsic.Control.EndIf
+		F.ODBC.conx!rst.Close
+
+	'Short form of the Order Entry Screen Save Hook
+	F.Intrinsic.Control.Case(12510)
+		'Check to see if there is custom text for this part
+		F.Intrinsic.String.Concat("Select SO_Text from GCG_4050_Maint where Part = '",V.Passed.000071.Trim,"' and Rev = '",V.Passed.000072.Trim,"' and Loc = '",V.Passed.000074.Trim,"'",V.Local.sSql)
+		F.ODBC.Connection!conx.OpenLocalRecordsetRO("rst",V.Local.sSql)
+		F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+			'Display text here
+			Gui.Form1.txtPart.Text(V.Passed.000071.Trim)
+			Gui.Form1.txtRev.Text(V.Passed.000072.Trim)
+			Gui.Form1.txtLoc.Text(V.Passed.000074.Trim)
+			Gui.Form1.txtDesc.Text(V.Passed.000003.Trim)
+			Gui.Form1.mltxtSOText.Text(V.ODBC.conx!rst.FieldValTrim!SO_Text)
+			'Lock the Controls
+			Gui.Form1.txtPart.Enabled(False)
+			Gui.Form1.txtRev.Enabled(False)
+			Gui.Form1.txtLoc.Enabled(False)
+			Gui.Form1.txtDesc.Enabled(False)
+			'display the information
+			Gui.Form1..Show
+		F.Intrinsic.Control.EndIf
+		F.ODBC.conx!rst.Close
+
+F.Intrinsic.Control.EndSelect
+
+
+Program.Sub.Main.End
+
+program.sub.form1_unload.start
+F.ODBC.Connection!conx.Close
+F.Intrinsic.Control.End
+
+program.sub.form1_unload.end
+
+program.sub.cmddone_click.start
+F.Intrinsic.Control.CallSub(Form1_unload)
+
+program.sub.cmddone_click.end
+
+Program.Sub.Comments.Start
+${$0$}$GCG_ALL_SOText$}$SKT$}$1/26/2015
+Program.Sub.Comments.End
+
